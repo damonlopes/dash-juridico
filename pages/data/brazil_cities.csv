@@ -1,0 +1,28 @@
+city,city_ascii,lat,lng,country,iso2,iso3,admin_name,capital,population,id,tj
+São Paulo,Sao Paulo,-23.55,-46.6333,Brazil,BR,BRA,São Paulo,admin,23086000.0,1076532519,TJSP
+Rio de Janeiro,Rio de Janeiro,-22.9111,-43.2056,Brazil,BR,BRA,Rio de Janeiro,admin,12592000.0,1076887657,TJRJ
+Belo Horizonte,Belo Horizonte,-19.9167,-43.9333,Brazil,BR,BRA,Minas Gerais,admin,5328000.0,1076967355,TJMG
+Fortaleza,Fortaleza,-3.7275,-38.5275,Brazil,BR,BRA,Ceará,admin,4167996.0,1076567885,TJCE
+Brasília,Brasilia,-15.7939,-47.8828,Brazil,BR,BRA,Distrito Federal,primary,2817068.0,1076144436,TJDF
+Salvador,Salvador,-12.9747,-38.4767,Brazil,BR,BRA,Bahia,admin,2418005.0,1076923789,TJBA
+Manaus,Manaus,-3.1189,-60.0217,Brazil,BR,BRA,Amazonas,admin,2063547.0,1076607274,TJAM
+Curitiba,Curitiba,-25.4297,-49.2711,Brazil,BR,BRA,Paraná,admin,1773733.0,1076701712,TJPR
+Recife,Recife,-8.05,-34.9,Brazil,BR,BRA,Pernambuco,admin,1488920.0,1076137337,TJPE
+Goiânia,Goiania,-16.6667,-49.25,Brazil,BR,BRA,Goiás,admin,1437237.0,1076034054,TJGO
+Porto Alegre,Porto Alegre,-30.0331,-51.23,Brazil,BR,BRA,Rio Grande do Sul,admin,1332570.0,1076658221,TJRS
+Belém,Belem,-1.4558,-48.5039,Brazil,BR,BRA,Pará,admin,1303389.0,1076646823,TJPA
+São Luís,Sao Luis,-2.5283,-44.3044,Brazil,BR,BRA,Maranhão,admin,1037775.0,1076819308,TJMA
+Maceió,Maceio,-9.6658,-35.735,Brazil,BR,BRA,Alagoas,admin,957916.0,1076440479,TJAL
+Teresina,Teresina,-5.0949,-42.8042,Brazil,BR,BRA,Piauí,admin,953172.0,1076727667,TJPI
+Campo Grande,Campo Grande,-20.4839,-54.615,Brazil,BR,BRA,Mato Grosso do Sul,admin,897938.0,1076660445,TJMS
+João Pessoa,Joao Pessoa,-7.12,-34.88,Brazil,BR,BRA,Paraíba,admin,833932.0,1076922014,TJPB
+Natal,Natal,-5.7833,-35.2,Brazil,BR,BRA,Rio Grande do Norte,admin,751300.0,1076697777,TJRN
+Aracaju,Aracaju,-10.9167,-37.05,Brazil,BR,BRA,Sergipe,admin,664908.0,1076527830,TJSE
+Cuiabá,Cuiaba,-15.5958,-56.0969,Brazil,BR,BRA,Mato Grosso,admin,650912.0,1076112309,TJMT
+Florianópolis,Florianopolis,-27.6122,-48.4853,Brazil,BR,BRA,Santa Catarina,admin,537213.0,1076190259,TJSC
+Macapá,Macapa,0.033,-51.05,Brazil,BR,BRA,Amapá,admin,512902.0,1076189884,TJAP
+Porto Velho,Porto Velho,-8.7619,-63.9039,Brazil,BR,BRA,Rondônia,admin,460413.0,1076045591,TJRO
+Boa Vista,Boa Vista,2.8194,-60.6714,Brazil,BR,BRA,Roraima,admin,413486.0,1076621300,TJRR
+Rio Branco,Rio Branco,-9.9747,-67.81,Brazil,BR,BRA,Acre,admin,364756.0,1076391263,TJAC
+Vitória,Vitoria,-20.2889,-40.3083,Brazil,BR,BRA,Espírito Santo,admin,322869.0,1076376829,TJES
+Palmas,Palmas,-10.1844,-48.3336,Brazil,BR,BRA,Tocantins,admin,302692.0,1076052802,TJTO
