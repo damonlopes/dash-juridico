@@ -6,9 +6,11 @@ import numpy as np
 from dash import dcc, html, register_page, callback, Output, Input, callback_context
 from .data.loader import load_dashboard_data, load_cities_data, DataSchemaTJ
 from .components.ids import ids_tjs
+from pathlib import Path
 
-DATA_JURIDICO = './pages/data/Planilha BI FINAL.xlsx'
-DATA_CITIES = './pages/data/brazil_cities.csv'
+THIS_FOLDER = Path(__file__).parent.resolve()
+DATA_JURIDICO = THIS_FOLDER / 'data/Planilha BI FINAL.xlsx'
+DATA_CITIES = THIS_FOLDER / 'data/brazil_cities.csv'
 data = load_dashboard_data(DATA_JURIDICO, "Planilha1")
 df_cities = load_cities_data(DATA_CITIES)
 

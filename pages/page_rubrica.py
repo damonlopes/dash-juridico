@@ -6,8 +6,10 @@ import numpy as np
 from dash import dcc, html, register_page, callback, Output, Input, callback_context
 from .data.loader import load_dashboard_data, DataSchemaTJ
 from .components.ids import ids_rubrica
+from pathlib import Path
 
-DATA_PATH = './pages/data/Planilha BI FINAL.xlsx'
+THIS_FOLDER = Path(__file__).parent.resolve()
+DATA_PATH = THIS_FOLDER / "data/Planilha BI FINAL.xlsx"
 data = load_dashboard_data(DATA_PATH, "Planilha1")
 
 unique_tribunais = sorted(set(data[DataSchemaTJ.TRIBUNAL_ORIGEM].tolist()), key = str)
