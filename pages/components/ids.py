@@ -1,7 +1,12 @@
 class ids_tjs:
     TRIBUNAL_TJS_DROPDOWN = "tribunal-tjs-dropdown"
-
     SELECT_ALL_TRIBUNAIS_TJS_BUTTON = "select-all-tribunais-tjs-button"
+    RUBRICA_TJS_DROPDOWN = "rubrica-tjs-dropdown"
+    SELECT_ALL_RUBRICAS_TJS_BUTTON = "select-all-rubricas-tjs-button"
+    DECISAO_TJS_DROPDOWN = "decisao-tjs-dropdown"
+    SELECT_ALL_DECISOES_TJS_BUTTON = "select-all-decisoes-tjs-button"
+    PROPOSITURA_TJS_SLIDER = "propositura-tjs-slider"
+    JULGAMENTO_TJS_SLIDER = "julgamento-tjs-slider"
 
     CONTAINER_ESTADOS_TJ = "container-estados-tj"
     CONTAINER_RUBRICAS_TJ = "container-rubricas-tj"
@@ -20,6 +25,13 @@ class ids_tjs:
 class ids_stj:
     TRIBUNAL_STJ_DROPDOWN = "tribunal-stj-dropdown"
     SELECT_ALL_TRIBUNAIS_STJ_BUTTON = "select-all-tribunais-stj-button"
+    RUBRICA_STJ_DROPDOWN = "rubrica-stj-dropdown"
+    SELECT_ALL_RUBRICAS_STJ_BUTTON = "select-all-rubricas-stj-button"
+    CAMARA_STJ_DROPDOWN = "camara-stj-dropdown"
+    SELECT_ALL_CAMARAS_STJ_BUTTON = "select-all-camaras-stj-button"
+    ACAO_STJ_DROPDOWN = "acao-stj-dropdown"
+    SELECT_ALL_ACOES_STJ_BUTTON = "select-all-acoes-stj-button"
+    JULGAMENTO_STJ_SLIDER = "julgamento_stj_slider"
 
     CONTAINER_RUBRICA_STJ = "container-rubrica-stj"
     CONTAINER_CAMARA_STJ = "container-camara-stj"
@@ -33,9 +45,17 @@ class ids_stj:
 
 class ids_rubrica:
     TRIBUNAL_RUBRICA_DROPDOWN = "tribunal-rubrica-dropdown"
-    RUBRICA_DROPDOWN = "rubrica-dropdown"
     SELECT_ALL_TRIBUNAIS_RUBRICA_BUTTON = "select-all-tribunais-rubrica-button"
+    RUBRICA_DROPDOWN = "rubrica-dropdown"
     SELECT_ALL_RUBRICAS_BUTTON = "select-all-rubricas-button"
+    DECISAO_RUBRICA_DROPDOWN = "decisao-rubrica-dropdown"
+    SELECT_ALL_DECISOES_BUTTON = "select-all-decisoes-button"
+    ATIVO_RUBRICA_DROPDOWN = "ativo-rubrica-dropdown"
+    SELECT_ALL_ATIVOS_BUTTON = "select-all-ativos-button"
+    PASSIVO_RUBRICA_DROPDOWN = "passivo-rubrica-dropdown"
+    SELECT_ALL_PASSIVOS_BUTTON = "select-all-passivos-button"
+    PROPOSITURA_RUBRICA_SLIDER = "propositura-rubrica-slider"
+    JULGAMENTO_RUBRICA_SLIDER = "julgamento-rubrica-slider"
 
     CONTAINER_DURACAO_RUBRICA = "container-duracao-rubrica"
     CONTAINER_DECISOES_RUBRICA = "container-decisoes-rubrica"
