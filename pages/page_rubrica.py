@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
-from dash import dcc, html, register_page, callback, Output, Input, callback_context
+from dash import dcc, html, register_page, callback, Output, Input, State, callback_context
 from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, DataSchemaTJ
 from .components.ids import ids_rubrica
@@ -31,128 +31,139 @@ register_page(
 
 layout = html.Div(
     children = [
-        dbc.Container([
-            dbc.Row([
-                html.H4("Tribunal"),
+        dbc.Button(
+            "Mostrar/Ocultar Filtros",
+            id = ids_rubrica.OCULTAR_FILTROS_RUBRICA_BUTTON,
+            n_clicks = 0
+        ),
+        dbc.Collapse(
+            dbc.Container([
+                dbc.Row([
+                    html.H4("Tribunal"),
+                        dcc.Dropdown(
+                            id = ids_rubrica.TRIBUNAL_RUBRICA_DROPDOWN,
+                            options = [{"label": tribunal, "value": tribunal} for tribunal in unique_tribunais],
+                            value = unique_tribunais,
+                            multi = True,
+                        ),
+                        html.Button(
+                            className = "dropdown-button",
+                            children = ["Selecionar Todos"],
+                            id = ids_rubrica.SELECT_ALL_TRIBUNAIS_RUBRICA_BUTTON,
+                            n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Rubrica"),
                     dcc.Dropdown(
-                        id = ids_rubrica.TRIBUNAL_RUBRICA_DROPDOWN,
-                        options = [{"label": tribunal, "value": tribunal} for tribunal in unique_tribunais],
-                        value = unique_tribunais,
+                        id = ids_rubrica.RUBRICA_DROPDOWN,
+                        options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
+                        value = unique_rubricas,
                         multi = True,
                     ),
                     html.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
-                        id = ids_rubrica.SELECT_ALL_TRIBUNAIS_RUBRICA_BUTTON,
+                        id = ids_rubrica.SELECT_ALL_RUBRICAS_BUTTON,
                         n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Rubrica"),
-                dcc.Dropdown(
-                    id = ids_rubrica.RUBRICA_DROPDOWN,
-                    options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
-                    value = unique_rubricas,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_rubrica.SELECT_ALL_RUBRICAS_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Decisões"),
-                dcc.Dropdown(
-                    id = ids_rubrica.DECISAO_RUBRICA_DROPDOWN,
-                    options = [{"label": decisao, "value": decisao} for decisao in unique_decisoes],
-                    value = unique_decisoes,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_rubrica.SELECT_ALL_DECISOES_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Ativo"),
-                dcc.Dropdown(
-                    id = ids_rubrica.ATIVO_RUBRICA_DROPDOWN,
-                    options = [{"label": ativo, "value": ativo} for ativo in unique_ativos],
-                    value = unique_ativos,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_rubrica.SELECT_ALL_ATIVOS_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Passivo"),
-                dcc.Dropdown(
-                    id = ids_rubrica.PASSIVO_RUBRICA_DROPDOWN,
-                    options = [{"label": passivo, "value": passivo} for passivo in unique_passivos],
-                    value = unique_passivos,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_rubrica.SELECT_ALL_PASSIVOS_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Ano Propositura"),
-                dcc.RangeSlider(
-                    min = minimo_ano_propositura,
-                    max = maximo_ano_propositura,
-                    step = 1,
-                    value = [minimo_ano_propositura, maximo_ano_propositura],
-                    id = ids_rubrica.PROPOSITURA_RUBRICA_SLIDER,
-                    tooltip =  {
-                        "placement":"bottom",
-                        "always_visible":True,
-                    },
-                    marks = {
-                        x: {"label": str(x),
-                            "style":{
-                                "transform":"rotate(-90deg)"
-                            },
-                        }
-                        for x in range(minimo_ano_propositura, maximo_ano_propositura + 1)
-                    },
-                    allowCross = False,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Ano Julgamento"),
-                dcc.RangeSlider(
-                    min = minimo_ano_julgamento,
-                    max = maximo_ano_julgamento,
-                    step = 1,
-                    value = [minimo_ano_julgamento, maximo_ano_julgamento],
-                    id = ids_rubrica.JULGAMENTO_RUBRICA_SLIDER,
-                    tooltip =  {
-                        "placement":"bottom",
-                        "always_visible":True,
-                    },
-                    marks = {
-                        x: {"label": str(x),
-                            "style":{
-                                "transform":"rotate(-90deg)"
-                            },
-                        }
-                        for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
-                    },
-                    allowCross = False,
-                ),
-            ]),
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Decisões"),
+                    dcc.Dropdown(
+                        id = ids_rubrica.DECISAO_RUBRICA_DROPDOWN,
+                        options = [{"label": decisao, "value": decisao} for decisao in unique_decisoes],
+                        value = unique_decisoes,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_rubrica.SELECT_ALL_DECISOES_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Ativo"),
+                    dcc.Dropdown(
+                        id = ids_rubrica.ATIVO_RUBRICA_DROPDOWN,
+                        options = [{"label": ativo, "value": ativo} for ativo in unique_ativos],
+                        value = unique_ativos,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_rubrica.SELECT_ALL_ATIVOS_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Passivo"),
+                    dcc.Dropdown(
+                        id = ids_rubrica.PASSIVO_RUBRICA_DROPDOWN,
+                        options = [{"label": passivo, "value": passivo} for passivo in unique_passivos],
+                        value = unique_passivos,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_rubrica.SELECT_ALL_PASSIVOS_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Ano Propositura"),
+                    dcc.RangeSlider(
+                        min = minimo_ano_propositura,
+                        max = maximo_ano_propositura,
+                        step = 1,
+                        value = [minimo_ano_propositura, maximo_ano_propositura],
+                        id = ids_rubrica.PROPOSITURA_RUBRICA_SLIDER,
+                        tooltip =  {
+                            "placement":"bottom",
+                            "always_visible":True,
+                        },
+                        marks = {
+                            x: {"label": str(x),
+                                "style":{
+                                    "transform":"rotate(-90deg)"
+                                },
+                            }
+                            for x in range(minimo_ano_propositura, maximo_ano_propositura + 1)
+                        },
+                        allowCross = False,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Ano Julgamento"),
+                    dcc.RangeSlider(
+                        min = minimo_ano_julgamento,
+                        max = maximo_ano_julgamento,
+                        step = 1,
+                        value = [minimo_ano_julgamento, maximo_ano_julgamento],
+                        id = ids_rubrica.JULGAMENTO_RUBRICA_SLIDER,
+                        tooltip =  {
+                            "placement":"bottom",
+                            "always_visible":True,
+                        },
+                        marks = {
+                            x: {"label": str(x),
+                                "style":{
+                                    "transform":"rotate(-90deg)"
+                                },
+                            }
+                            for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
+                        },
+                        allowCross = False,
+                    ),
+                ]),
+            ]),            
+            id = ids_rubrica.OCULTAR_FILTROS_RUBRICA_COLLAPSE,
+            is_open = False
+        ),
+        dbc.Container([
             dbc.Row([
                 dbc.Col(
                     html.Div(
@@ -210,6 +221,16 @@ layout = html.Div(
         ]),
     ],
 )
+
+@callback(
+    Output(ids_rubrica.OCULTAR_FILTROS_RUBRICA_COLLAPSE, "is_open"),
+    Input(ids_rubrica.OCULTAR_FILTROS_RUBRICA_BUTTON, "n_clicks"),
+    State(ids_rubrica.OCULTAR_FILTROS_RUBRICA_COLLAPSE, "is_open",)
+)
+def filtros(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 @callback(
     Output(ids_rubrica.TRIBUNAL_RUBRICA_DROPDOWN, "value"),

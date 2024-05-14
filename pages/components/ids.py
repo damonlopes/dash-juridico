@@ -1,4 +1,7 @@
 class ids_tjs:
+    OCULTAR_FILTROS_TJS_COLLAPSE = "ocultar-filtros-tjs-collapse"
+    OCULTAR_FILTROS_TJS_BUTTON = "ocultar-filtros-tjs-button"
+
     TRIBUNAL_TJS_DROPDOWN = "tribunal-tjs-dropdown"
     SELECT_ALL_TRIBUNAIS_TJS_BUTTON = "select-all-tribunais-tjs-button"
     RUBRICA_TJS_DROPDOWN = "rubrica-tjs-dropdown"
@@ -23,6 +26,9 @@ class ids_tjs:
     DURACAO_TJS_GAUGE_CHART = "duracao-tjs-gauge-chart"
 
 class ids_stj:
+    OCULTAR_FILTROS_STJ_COLLAPSE = "ocultar-filtros-stj-collapse"
+    OCULTAR_FILTROS_STJ_BUTTON = "ocultar-filtros-stj-button"
+
     TRIBUNAL_STJ_DROPDOWN = "tribunal-stj-dropdown"
     SELECT_ALL_TRIBUNAIS_STJ_BUTTON = "select-all-tribunais-stj-button"
     RUBRICA_STJ_DROPDOWN = "rubrica-stj-dropdown"
@@ -44,6 +50,9 @@ class ids_stj:
     ACAO_STJ_BAR_CHART = "acao-stj-bar-chart"
 
 class ids_rubrica:
+    OCULTAR_FILTROS_RUBRICA_COLLAPSE = "ocultar-filtros-rubrica-collapse"
+    OCULTAR_FILTROS_RUBRICA_BUTTON = "ocultar-filtros-rubrica-button"
+
     TRIBUNAL_RUBRICA_DROPDOWN = "tribunal-rubrica-dropdown"
     SELECT_ALL_TRIBUNAIS_RUBRICA_BUTTON = "select-all-tribunais-rubrica-button"
     RUBRICA_DROPDOWN = "rubrica-dropdown"

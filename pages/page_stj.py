@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from dash import dcc, html, register_page, callback, Output, Input, callback_context
+from dash import dcc, html, register_page, callback, Output, Input, State, callback_context
 from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, DataSchemaSTJ
 from .components.ids import ids_stj
@@ -30,90 +30,101 @@ register_page(
 
 layout = html.Div(
     children = [
+        dbc.Button(
+            "Mostrar/Ocultar Filtros",
+            id = ids_stj.OCULTAR_FILTROS_STJ_BUTTON,
+            n_clicks = 0
+        ),
+        dbc.Collapse(
+            dbc.Container([
+                dbc.Row([
+                    html.H4("STJ"),
+                    dcc.Dropdown(
+                        id = ids_stj.TRIBUNAL_STJ_DROPDOWN,
+                        options = [{"label": tribunal, "value": tribunal} for tribunal in unique_tribunais],
+                        value = unique_tribunais,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_stj.SELECT_ALL_TRIBUNAIS_STJ_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Rubricas"),
+                    dcc.Dropdown(
+                        id = ids_stj.RUBRICA_STJ_DROPDOWN,
+                        options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
+                        value = unique_rubricas,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_stj.SELECT_ALL_RUBRICAS_STJ_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Câmara/Turma/Seção"),
+                    dcc.Dropdown(
+                        id = ids_stj.CAMARA_STJ_DROPDOWN,
+                        options = [{"label": camara, "value": camara} for camara in unique_camaras],
+                        value = unique_camaras,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_stj.SELECT_ALL_CAMARAS_STJ_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Tipo de Ação"),
+                    dcc.Dropdown(
+                        id = ids_stj.ACAO_STJ_DROPDOWN,
+                        options = [{"label": acao, "value": acao} for acao in unique_acoes],
+                        value = unique_acoes,
+                        multi = True,
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_stj.SELECT_ALL_ACOES_STJ_BUTTON,
+                        n_clicks = 0,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Ano Julgamento"),
+                    dcc.RangeSlider(
+                        min = minimo_ano_julgamento,
+                        max = maximo_ano_julgamento,
+                        step = 1,
+                        value = [minimo_ano_julgamento, maximo_ano_julgamento],
+                        id = ids_stj.JULGAMENTO_STJ_SLIDER,
+                        tooltip =  {
+                            "placement":"bottom",
+                            "always_visible":True,
+                        },
+                        marks = {
+                            x: {"label": str(x),
+                                "style":{
+                                    "transform":"rotate(-90deg)"
+                                },
+                            }
+                            for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
+                        },
+                        allowCross = False,
+                    ),
+                ]),
+            ]),
+            id = ids_stj.OCULTAR_FILTROS_STJ_COLLAPSE,
+            is_open = False
+        ),
         dbc.Container([
-            dbc.Row([
-                html.H4("STJ"),
-                dcc.Dropdown(
-                    id = ids_stj.TRIBUNAL_STJ_DROPDOWN,
-                    options = [{"label": tribunal, "value": tribunal} for tribunal in unique_tribunais],
-                    value = unique_tribunais,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_stj.SELECT_ALL_TRIBUNAIS_STJ_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Rubricas"),
-                dcc.Dropdown(
-                    id = ids_stj.RUBRICA_STJ_DROPDOWN,
-                    options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
-                    value = unique_rubricas,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_stj.SELECT_ALL_RUBRICAS_STJ_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Câmara/Turma/Seção"),
-                dcc.Dropdown(
-                    id = ids_stj.CAMARA_STJ_DROPDOWN,
-                    options = [{"label": camara, "value": camara} for camara in unique_camaras],
-                    value = unique_camaras,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_stj.SELECT_ALL_CAMARAS_STJ_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Tipo de Ação"),
-                dcc.Dropdown(
-                    id = ids_stj.ACAO_STJ_DROPDOWN,
-                    options = [{"label": acao, "value": acao} for acao in unique_acoes],
-                    value = unique_acoes,
-                    multi = True,
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_stj.SELECT_ALL_ACOES_STJ_BUTTON,
-                    n_clicks = 0,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Ano Julgamento"),
-                dcc.RangeSlider(
-                    min = minimo_ano_julgamento,
-                    max = maximo_ano_julgamento,
-                    step = 1,
-                    value = [minimo_ano_julgamento, maximo_ano_julgamento],
-                    id = ids_stj.JULGAMENTO_STJ_SLIDER,
-                    tooltip =  {
-                        "placement":"bottom",
-                        "always_visible":True,
-                    },
-                    marks = {
-                        x: {"label": str(x),
-                            "style":{
-                                "transform":"rotate(-90deg)"
-                            },
-                        }
-                        for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
-                    },
-                    allowCross = False,
-                ),
-            ]),
             dbc.Row([
                 dbc.Col(
                     html.Div(
@@ -159,6 +170,16 @@ layout = html.Div(
         ]),
     ]
 )
+
+@callback(
+    Output(ids_stj.OCULTAR_FILTROS_STJ_COLLAPSE, "is_open"),
+    Input(ids_stj.OCULTAR_FILTROS_STJ_BUTTON, "n_clicks"),
+    State(ids_stj.OCULTAR_FILTROS_STJ_COLLAPSE, "is_open",)
+)
+def filtros(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 @callback(
     Output(ids_stj.TRIBUNAL_STJ_DROPDOWN, "value"),

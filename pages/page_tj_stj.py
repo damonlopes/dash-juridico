@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from dash import dcc, html, register_page, callback, Output, Input, callback_context
+from dash import dcc, html, register_page, callback, Output, Input, State, callback_context
 from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, load_cities_data, DataSchemaTJ
 from .components.ids import ids_tjs
@@ -32,98 +32,109 @@ register_page(
 
 layout = html.Div(
     children = [
+        dbc.Button(
+            "Mostrar/Ocultar Filtros",
+            id = ids_tjs.OCULTAR_FILTROS_TJS_BUTTON,
+            n_clicks = 0
+        ),
+        dbc.Collapse(
+            dbc.Container([
+                dbc.Row([
+                    html.H4("TJS"),
+                    dcc.Dropdown(
+                        id = ids_tjs.TRIBUNAL_TJS_DROPDOWN,
+                        options = [{"label": tribunal, "value": tribunal} for tribunal in unique_tribunais],
+                        value = unique_tribunais,
+                        multi = True
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_tjs.SELECT_ALL_TRIBUNAIS_TJS_BUTTON,
+                        n_clicks = 0
+                    ), 
+                ]),
+                dbc.Row([
+                    html.H4("Rubricas"),
+                    dcc.Dropdown(
+                        id = ids_tjs.RUBRICA_TJS_DROPDOWN,
+                        options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
+                        value = unique_rubricas,
+                        multi = True
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_tjs.SELECT_ALL_RUBRICAS_TJS_BUTTON,
+                        n_clicks = 0
+                    ), 
+                ]),
+                dbc.Row([
+                    html.H4("Decisões"),
+                    dcc.Dropdown(
+                        id = ids_tjs.DECISAO_TJS_DROPDOWN,
+                        options = [{"label": decisao, "value": decisao} for decisao in unique_decisoes],
+                        value = unique_decisoes,
+                        multi = True
+                    ),
+                    html.Button(
+                        className = "dropdown-button",
+                        children = ["Selecionar Todos"],
+                        id = ids_tjs.SELECT_ALL_DECISOES_TJS_BUTTON,
+                        n_clicks = 0
+                    ), 
+                ]),
+                dbc.Row([
+                    html.H4("Ano Propositura"),
+                    dcc.RangeSlider(
+                        min = minimo_ano_propositura,
+                        max = maximo_ano_propositura,
+                        step = 1,
+                        value = [minimo_ano_propositura, maximo_ano_propositura],
+                        id = ids_tjs.PROPOSITURA_TJS_SLIDER,
+                        tooltip =  {
+                            "placement":"bottom",
+                            "always_visible":True,
+                        },
+                        marks = {
+                            x: {"label": str(x),
+                                "style":{
+                                    "transform":"rotate(-90deg)"
+                                },
+                            }
+                            for x in range(minimo_ano_propositura, maximo_ano_propositura + 1)
+                        },
+                        allowCross = False,
+                    ),
+                ]),
+                dbc.Row([
+                    html.H4("Ano Julgamento"),
+                    dcc.RangeSlider(
+                        min = minimo_ano_julgamento,
+                        max = maximo_ano_julgamento,
+                        step = 1,
+                        value = [minimo_ano_julgamento, maximo_ano_julgamento],
+                        id = ids_tjs.JULGAMENTO_TJS_SLIDER,
+                        tooltip =  {
+                            "placement":"bottom",
+                            "always_visible":True,
+                        },
+                        marks = {
+                            x: {"label": str(x),
+                                "style":{
+                                    "transform":"rotate(-90deg)"
+                                },
+                            }
+                            for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
+                        },
+                        allowCross = False,
+                    ),
+                ]),
+            ]),
+            id = ids_tjs.OCULTAR_FILTROS_TJS_COLLAPSE,
+            is_open = False
+        ),
         dbc.Container([
-            dbc.Row([
-                html.H4("TJS"),
-                dcc.Dropdown(
-                    id = ids_tjs.TRIBUNAL_TJS_DROPDOWN,
-                    options = [{"label": tribunal, "value": tribunal} for tribunal in unique_tribunais],
-                    value = unique_tribunais,
-                    multi = True
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_tjs.SELECT_ALL_TRIBUNAIS_TJS_BUTTON,
-                    n_clicks = 0
-                ), 
-            ]),
-            dbc.Row([
-                html.H4("Rubricas"),
-                dcc.Dropdown(
-                    id = ids_tjs.RUBRICA_TJS_DROPDOWN,
-                    options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
-                    value = unique_rubricas,
-                    multi = True
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_tjs.SELECT_ALL_RUBRICAS_TJS_BUTTON,
-                    n_clicks = 0
-                ), 
-            ]),
-            dbc.Row([
-                html.H4("Decisões"),
-                dcc.Dropdown(
-                    id = ids_tjs.DECISAO_TJS_DROPDOWN,
-                    options = [{"label": decisao, "value": decisao} for decisao in unique_decisoes],
-                    value = unique_decisoes,
-                    multi = True
-                ),
-                html.Button(
-                    className = "dropdown-button",
-                    children = ["Selecionar Todos"],
-                    id = ids_tjs.SELECT_ALL_DECISOES_TJS_BUTTON,
-                    n_clicks = 0
-                ), 
-            ]),
-            dbc.Row([
-                html.H4("Ano Propositura"),
-                dcc.RangeSlider(
-                    min = minimo_ano_propositura,
-                    max = maximo_ano_propositura,
-                    step = 1,
-                    value = [minimo_ano_propositura, maximo_ano_propositura],
-                    id = ids_tjs.PROPOSITURA_TJS_SLIDER,
-                    tooltip =  {
-                        "placement":"bottom",
-                        "always_visible":True,
-                    },
-                    marks = {
-                        x: {"label": str(x),
-                            "style":{
-                                "transform":"rotate(-90deg)"
-                            },
-                        }
-                        for x in range(minimo_ano_propositura, maximo_ano_propositura + 1)
-                    },
-                    allowCross = False,
-                ),
-            ]),
-            dbc.Row([
-                html.H4("Ano Julgamento"),
-                dcc.RangeSlider(
-                    min = minimo_ano_julgamento,
-                    max = maximo_ano_julgamento,
-                    step = 1,
-                    value = [minimo_ano_julgamento, maximo_ano_julgamento],
-                    id = ids_tjs.JULGAMENTO_TJS_SLIDER,
-                    tooltip =  {
-                        "placement":"bottom",
-                        "always_visible":True,
-                    },
-                    marks = {
-                        x: {"label": str(x),
-                            "style":{
-                                "transform":"rotate(-90deg)"
-                            },
-                        }
-                        for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
-                    },
-                    allowCross = False,
-                ),
-            ]),
             dbc.Row([
                 dbc.Col(
                     html.Div(
@@ -181,6 +192,16 @@ layout = html.Div(
         ]),
     ]
 )
+
+@callback(
+    Output(ids_tjs.OCULTAR_FILTROS_TJS_COLLAPSE, "is_open"),
+    Input(ids_tjs.OCULTAR_FILTROS_TJS_BUTTON, "n_clicks"),
+    State(ids_tjs.OCULTAR_FILTROS_TJS_COLLAPSE, "is_open",)
+)
+def filtros(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 @callback(
     Output(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
