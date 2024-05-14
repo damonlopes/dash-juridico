@@ -4,6 +4,7 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 from dash import dcc, html, register_page, callback, Output, Input, callback_context
+from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, load_cities_data, DataSchemaTJ
 from .components.ids import ids_tjs
 from pathlib import Path
@@ -15,6 +16,13 @@ data = load_dashboard_data(DATA_JURIDICO, "Planilha1")
 df_cities = load_cities_data(DATA_CITIES)
 
 unique_tribunais = sorted(set(data[DataSchemaTJ.TRIBUNAL_ORIGEM].unique().tolist()), key = str)
+unique_rubricas = sorted(set(data[DataSchemaTJ.RUBRICA].unique().tolist()), key = str)
+unique_decisoes = sorted(set(data[DataSchemaTJ.ECAD].unique().tolist()), key = str)
+minimo_ano_julgamento = data[DataSchemaTJ.DATA_JULGAMENTO].dt.year.min()
+maximo_ano_julgamento = data[DataSchemaTJ.DATA_JULGAMENTO].dt.year.max()
+minimo_ano_propositura = data[DataSchemaTJ.ANO_PROPOSITURA].dt.year.min()
+maximo_ano_propositura = data[DataSchemaTJ.ANO_PROPOSITURA].dt.year.max()
+
 
 register_page(
     __name__,
@@ -39,6 +47,82 @@ layout = html.Div(
                     id = ids_tjs.SELECT_ALL_TRIBUNAIS_TJS_BUTTON,
                     n_clicks = 0
                 ), 
+            ]),
+            dbc.Row([
+                html.H4("Rubricas"),
+                dcc.Dropdown(
+                    id = ids_tjs.RUBRICA_TJS_DROPDOWN,
+                    options = [{"label": rubrica, "value": rubrica} for rubrica in unique_rubricas],
+                    value = unique_rubricas,
+                    multi = True
+                ),
+                html.Button(
+                    className = "dropdown-button",
+                    children = ["Selecionar Todos"],
+                    id = ids_tjs.SELECT_ALL_RUBRICAS_TJS_BUTTON,
+                    n_clicks = 0
+                ), 
+            ]),
+            dbc.Row([
+                html.H4("Decisões"),
+                dcc.Dropdown(
+                    id = ids_tjs.DECISAO_TJS_DROPDOWN,
+                    options = [{"label": decisao, "value": decisao} for decisao in unique_decisoes],
+                    value = unique_decisoes,
+                    multi = True
+                ),
+                html.Button(
+                    className = "dropdown-button",
+                    children = ["Selecionar Todos"],
+                    id = ids_tjs.SELECT_ALL_DECISOES_TJS_BUTTON,
+                    n_clicks = 0
+                ), 
+            ]),
+            dbc.Row([
+                html.H4("Ano Propositura"),
+                dcc.RangeSlider(
+                    min = minimo_ano_propositura,
+                    max = maximo_ano_propositura,
+                    step = 1,
+                    value = [minimo_ano_propositura, maximo_ano_propositura],
+                    id = ids_tjs.PROPOSITURA_TJS_SLIDER,
+                    tooltip =  {
+                        "placement":"bottom",
+                        "always_visible":True,
+                    },
+                    marks = {
+                        x: {"label": str(x),
+                            "style":{
+                                "transform":"rotate(-90deg)"
+                            },
+                        }
+                        for x in range(minimo_ano_propositura, maximo_ano_propositura + 1)
+                    },
+                    allowCross = False,
+                ),
+            ]),
+            dbc.Row([
+                html.H4("Ano Julgamento"),
+                dcc.RangeSlider(
+                    min = minimo_ano_julgamento,
+                    max = maximo_ano_julgamento,
+                    step = 1,
+                    value = [minimo_ano_julgamento, maximo_ano_julgamento],
+                    id = ids_tjs.JULGAMENTO_TJS_SLIDER,
+                    tooltip =  {
+                        "placement":"bottom",
+                        "always_visible":True,
+                    },
+                    marks = {
+                        x: {"label": str(x),
+                            "style":{
+                                "transform":"rotate(-90deg)"
+                            },
+                        }
+                        for x in range(minimo_ano_julgamento, maximo_ano_julgamento + 1)
+                    },
+                    allowCross = False,
+                ),
             ]),
             dbc.Row([
                 dbc.Col(
@@ -110,49 +194,40 @@ layout = html.Div(
 def select_all_tribunais(_:str, *args) -> list[str]:
     return unique_tribunais, None, None, None, None, None
 
+@callback(
+    Output(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.SELECT_ALL_RUBRICAS_TJS_BUTTON, "n_clicks"),
+)
+def select_all_rubricas(_:str) -> list[str]:
+    return unique_rubricas
+
+@callback(
+    Output(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.SELECT_ALL_DECISOES_TJS_BUTTON, "n_clicks"),
+)
+def select_all_decisoes(_:str) -> list[str]:
+    return unique_decisoes
+
 
 @callback(
     Output(ids_tjs.DURACAO_TJS_GAUGE_CHART, "figure"),
     Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
 )
-# def update_duracao_chart(tribunais:list[str]) -> go.Figure:
-def update_duracao_chart(tribunais:list[str], *args) -> go.Figure:
-    
-    if not tribunais:
-        filtered_data = data.copy()
-    else:
-        filtered_data = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)].copy()
-    
+def update_duracao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], *args) -> go.Figure:
     ctx = callback_context
 
-    if not ctx.triggered[0]["value"]:
-        pass
-    else:
-        if ids_tjs.ESTADOS_BUBBLE_MAP in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["customdata"][0]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.TRIBUNAL_ORIGEM] == selected]
-            pass
-        if ids_tjs.RUBRICA_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.RUBRICA] == selected]
-            pass
-        if ids_tjs.DECISOES_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ECAD] == selected]
-            pass
-        if ids_tjs.JULGAMENTO_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year == int(selected)]
-            pass
-        if ids_tjs.PROPOSITURA_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ANO_PROPOSITURA].dt.year == int(selected)]
-            pass
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
+    
+    filtered_data = check_click_data(filtered_data, 'duracao', ctx)
 
     minimo_duracao = filtered_data[DataSchemaTJ.TEMPO_MEDIO].min()
     maximo_duracao = filtered_data[DataSchemaTJ.TEMPO_MEDIO].max()
@@ -201,39 +276,22 @@ def update_duracao_chart(tribunais:list[str], *args) -> go.Figure:
 @callback(
     Output(ids_tjs.RUBRICA_TJS_PIE_CHART, "figure"),
     Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
 )
-def update_rubrica_chart(tribunais:list[str], click_data, *args) -> go.Figure:
+def update_rubrica_chart(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
     ctx = callback_context
 
-    if not tribunais:
-        filtered_data = data.copy()
-    else:
-        filtered_data = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)].copy()
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
 
-    if not ctx.triggered[0]["value"]:
-        pass
-    else:
-        if ids_tjs.ESTADOS_BUBBLE_MAP in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["customdata"][0]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.TRIBUNAL_ORIGEM] == selected]
-            pass
-        if ids_tjs.DECISOES_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ECAD] == selected]
-            pass
-        if ids_tjs.JULGAMENTO_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year == int(selected)]
-            pass
-        if ids_tjs.PROPOSITURA_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ANO_PROPOSITURA].dt.year == int(selected)]
-            pass
+    filtered_data = check_click_data(filtered_data, 'rubrica', ctx)
 
     df_rubrica = filtered_data.groupby([DataSchemaTJ.RUBRICA])[DataSchemaTJ.RUBRICA].count().reset_index(name = 'Total')
 
@@ -293,39 +351,22 @@ def update_rubrica_chart(tribunais:list[str], click_data, *args) -> go.Figure:
 @callback(
     Output(ids_tjs.DECISOES_TJS_PIE_CHART, "figure"),
     Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
 )
-def update_decisao_chart(tribunais:list[str], click_data, *args) -> go.Figure:
+def update_decisao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
     ctx = callback_context
 
-    if not tribunais:
-        filtered_data = data.copy()
-    else:  
-        filtered_data = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)].copy()
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
 
-    if not ctx.triggered[0]["value"]:
-        pass
-    else:
-        if ids_tjs.ESTADOS_BUBBLE_MAP in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["customdata"][0]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.TRIBUNAL_ORIGEM] == selected]
-            pass
-        if ids_tjs.RUBRICA_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.RUBRICA] == selected]
-            pass
-        if ids_tjs.JULGAMENTO_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year == int(selected)]
-            pass
-        if ids_tjs.PROPOSITURA_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ANO_PROPOSITURA].dt.year == int(selected)]
-            pass
+    filtered_data = check_click_data(filtered_data, 'decisao', ctx)
 
     df_decisoes = filtered_data.groupby([DataSchemaTJ.ECAD])[DataSchemaTJ.ECAD].count().reset_index(name = 'Total')
 
@@ -382,38 +423,22 @@ def update_decisao_chart(tribunais:list[str], click_data, *args) -> go.Figure:
 @callback(
     Output(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "figure"),
     Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
 )
-def update_propositura_chart(tribunais:list[str], click_data, *args) -> go.Figure:
+def update_propositura_chart(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
     ctx = callback_context
-    if not tribunais:
-        filtered_data = data.copy()
-    else:
-        filtered_data = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)].copy()
-    
-    if not ctx.triggered[0]["value"]:
-        pass
-    else:
-        if ids_tjs.ESTADOS_BUBBLE_MAP in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["customdata"][0]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.TRIBUNAL_ORIGEM] == selected]
-            pass
-        if ids_tjs.RUBRICA_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.RUBRICA] == selected]
-            pass
-        if ids_tjs.DECISOES_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ECAD] == selected]
-            pass
-        if ids_tjs.JULGAMENTO_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year == int(selected)]
-            pass
+
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
+
+    filtered_data = check_click_data(filtered_data, 'propositura', ctx)
 
     filtered_data['Ano'] = filtered_data[DataSchemaTJ.ANO_PROPOSITURA].dt.year
 
@@ -470,39 +495,22 @@ def update_propositura_chart(tribunais:list[str], click_data, *args) -> go.Figur
 @callback(
     Output(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "figure"),
     Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
 )
-def update_julgamento_chart(tribunais:list[str], click_data, *args) -> go.Figure:
+def update_julgamento_chart(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
     ctx = callback_context
 
-    if not tribunais:
-        filtered_data = data.copy()
-    else:
-        filtered_data = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)].copy()
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
 
-    if not ctx.triggered[0]["value"]:
-        pass
-    else:
-        if ids_tjs.ESTADOS_BUBBLE_MAP in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["customdata"][0]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.TRIBUNAL_ORIGEM] == selected]
-            pass
-        if ids_tjs.RUBRICA_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.RUBRICA] == selected]
-            pass
-        if ids_tjs.DECISOES_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ECAD] == selected]
-            pass
-        if ids_tjs.PROPOSITURA_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ANO_PROPOSITURA].dt.year == int(selected)]
-            pass
+    filtered_data = check_click_data(filtered_data, 'julgamento', ctx)
 
     filtered_data['Ano'] = filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year
 
@@ -559,39 +567,22 @@ def update_julgamento_chart(tribunais:list[str], click_data, *args) -> go.Figure
 @callback(
     Output(ids_tjs.ESTADOS_BUBBLE_MAP, "figure"),
     Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
 )
-def update_estados_map(tribunais:list[str], click_data, *args) -> go.Figure:
+def update_estados_map(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
     ctx = callback_context
 
-    if not tribunais:
-        filtered_data = data.copy()
-    else:
-        filtered_data = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)].copy()
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
 
-    if not ctx.triggered[0]["value"]:
-        pass
-    else:
-        if ids_tjs.RUBRICA_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.RUBRICA] == selected]
-            pass
-        if ids_tjs.DECISOES_TJS_PIE_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ECAD] == selected]
-            pass
-        if ids_tjs.JULGAMENTO_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year == int(selected)]
-            pass
-        if ids_tjs.PROPOSITURA_TJS_BAR_CHART in ctx.triggered[0]["prop_id"]:
-            selected = ctx.triggered[0]["value"]["points"][0]["label"]
-            filtered_data = filtered_data[filtered_data[DataSchemaTJ.ANO_PROPOSITURA].dt.year == int(selected)]
-            pass
+    filtered_data = check_click_data(filtered_data, 'estado', ctx)
     
     df_tjs = filtered_data.groupby([DataSchemaTJ.TRIBUNAL_ORIGEM])[DataSchemaTJ.TRIBUNAL_ORIGEM].count().reset_index(name = 'Total')
 
@@ -621,54 +612,53 @@ def update_estados_map(tribunais:list[str], click_data, *args) -> go.Figure:
 
     return fig
 
-# @callback(
-#     Output(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
-#     Output(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
-#     Output(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
-#     Output(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
-#     Output(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
-#     Input(ids_tjs.ESTADOS_BUBBLE_MAP, "clickData"),
-#     Input(ids_tjs.RUBRICA_TJS_PIE_CHART, "clickData"),
-#     Input(ids_tjs.DECISOES_TJS_PIE_CHART, "clickData"),
-#     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
-#     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
-# )
-# def reset_click_data(estados,rubrica,decisoes,julgamento,propositura):
-#     ctx = callback_context
+def filter_database(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento: list[int]) -> pd.DataFrame:
 
-#     print(ctx.triggered[0])
+    new_df = data.copy()
 
-# @callback(
-#     Output(ids_tjs.RUBRICA_TJS_PIE_CHART, 'clickData'),
-#     Input(ids_tjs.CONTAINER_RUBRICAS_TJ, 'n_clicks')
-# )
-# def reset_click_rubricas(n_clicks):
-#     return None
+    if tribunais:
+        new_df = data[data[DataSchemaTJ.TRIBUNAL_ORIGEM].isin(tribunais)]
 
-# @callback(
-#     Output(ids_tjs.DECISOES_TJS_PIE_CHART, 'clickData'),
-#     Input(ids_tjs.CONTAINER_DECISOES_TJ, 'n_clicks')
-# )
-# def reset_click_decisoes(n_clicks):
-#     return None
+    if rubricas:
+        new_df = new_df[new_df[DataSchemaTJ.RUBRICA].isin(rubricas)]
 
-# @callback(
-#     Output(ids_tjs.ESTADOS_BUBBLE_MAP, 'clickData'),
-#     Input(ids_tjs.CONTAINER_ESTADOS_TJ, 'n_clicks')
-# )
-# def reset_click_estados(n_clicks):
-#     return None
+    if decisoes:
+        new_df = new_df[new_df[DataSchemaTJ.ECAD].isin(decisoes)]
 
-# @callback(
-#     Output(ids_tjs.JULGAMENTO_TJS_BAR_CHART, 'clickData'),
-#     Input(ids_tjs.CONTAINER_JULGAMENTO_TJ, 'n_clicks')
-# )
-# def reset_click_julgamentos(n_clicks):
-#     return None
+    if ano_propositura[0] == ano_propositura[1]:
+        new_df = new_df[new_df[DataSchemaTJ.ANO_PROPOSITURA].dt.year == ano_propositura[0]]
+    else:
+        new_df = new_df[(new_df[DataSchemaTJ.ANO_PROPOSITURA].dt.year >= ano_propositura[0])&(new_df[DataSchemaTJ.ANO_PROPOSITURA].dt.year <= ano_propositura[1])]
 
-# @callback(
-#     Output(ids_tjs.PROPOSITURA_TJS_BAR_CHART, 'clickData'),
-#     Input(ids_tjs.CONTAINER_PROPOSITURA_TJ, 'n_clicks')
-# )
-# def reset_click_propositura(n_clicks):
-#     return None
+    if ano_julgamento[0] == ano_julgamento[1]:
+        new_df = new_df[new_df[DataSchemaTJ.DATA_JULGAMENTO].dt.year == ano_julgamento[0]]
+    else:
+        new_df = new_df[(new_df[DataSchemaTJ.DATA_JULGAMENTO].dt.year >= ano_julgamento[0])&(new_df[DataSchemaTJ.DATA_JULGAMENTO].dt.year <= ano_julgamento[1])]
+
+    return new_df
+
+def check_click_data(df_click:pd.DataFrame, chart:str, click_context:CallbackContext) -> pd.DataFrame:
+    if not click_context.triggered[0]["value"]:
+        return df_click
+    else:
+        if ids_tjs.ESTADOS_BUBBLE_MAP in click_context.triggered[0]["prop_id"] and chart != 'estado':
+            selected = click_context.triggered[0]["value"]["points"][0]["customdata"][0]
+            df_click = df_click[df_click[DataSchemaTJ.TRIBUNAL_ORIGEM] == selected]
+            pass
+        if ids_tjs.RUBRICA_TJS_PIE_CHART in click_context.triggered[0]["prop_id"] and chart != 'rubrica':
+            selected = click_context.triggered[0]["value"]["points"][0]["label"]
+            df_click = df_click[df_click[DataSchemaTJ.RUBRICA] == selected]
+            pass
+        if ids_tjs.DECISOES_TJS_PIE_CHART in click_context.triggered[0]["prop_id"] and chart != 'decisao':
+            selected = click_context.triggered[0]["value"]["points"][0]["label"]
+            df_click = df_click[df_click[DataSchemaTJ.ECAD] == selected]
+            pass
+        if ids_tjs.JULGAMENTO_TJS_BAR_CHART in click_context.triggered[0]["prop_id"] and chart != 'julgamento':
+            selected = click_context.triggered[0]["value"]["points"][0]["label"]
+            df_click = df_click[df_click[DataSchemaTJ.DATA_JULGAMENTO].dt.year == int(selected)]
+            pass
+        if ids_tjs.PROPOSITURA_TJS_BAR_CHART in click_context.triggered[0]["prop_id"] and chart != 'propositura':
+            selected = click_context.triggered[0]["value"]["points"][0]["label"]
+            df_click = df_click[df_click[DataSchemaTJ.ANO_PROPOSITURA].dt.year == int(selected)]
+            pass
+        return df_click
