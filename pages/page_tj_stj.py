@@ -32,11 +32,25 @@ register_page(
 
 layout = html.Div(
     children = [
-        dbc.Button(
-            "Mostrar/Ocultar Filtros",
-            id = ids_tjs.OCULTAR_FILTROS_TJS_BUTTON,
-            n_clicks = 0
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dbc.Button(
+                            "Mostrar/Ocultar Filtros",
+                            id = ids_tjs.OCULTAR_FILTROS_TJS_BUTTON,
+                            n_clicks = 0,
+                        ),
+                    ],
+                    width = {
+                        "size":3,
+                        # "offset":3,
+                    },
+                ),
+            ],
+            justify = "right",
         ),
+        html.Hr(),
         dbc.Collapse(
             dbc.Container([
                 dbc.Row([
@@ -130,10 +144,11 @@ layout = html.Div(
                         allowCross = False,
                     ),
                 ]),
-            ]),
+            ],fluid = True),
             id = ids_tjs.OCULTAR_FILTROS_TJS_COLLAPSE,
             is_open = False
         ),
+        html.Hr(),
         dbc.Container([
             dbc.Row([
                 dbc.Col(
@@ -142,7 +157,13 @@ layout = html.Div(
                             id = ids_tjs.ESTADOS_BUBBLE_MAP,
                         ),
                         id = ids_tjs.CONTAINER_ESTADOS_TJ,
-                    )
+                    ),
+                    # xs = 6,
+                    # sm = 6,
+                    # md = 6,
+                    # lg = 6,
+                    # xl = 6,
+                    # xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -150,7 +171,13 @@ layout = html.Div(
                             id = ids_tjs.DURACAO_TJS_GAUGE_CHART,
                         ),
                         id = ids_tjs.CONTAINER_DURACAO_TJ,
-                    )
+                    ),
+                    # xs = 6,
+                    # sm = 6,
+                    # md = 6,
+                    # lg = 6,
+                    # xl = 6,
+                    # xxl = 6,
                 )
             ]),
             dbc.Row([
@@ -598,7 +625,7 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], decisoes:li
     Input(ids_tjs.JULGAMENTO_TJS_BAR_CHART, "clickData"),
     Input(ids_tjs.PROPOSITURA_TJS_BAR_CHART, "clickData"),
 )
-def update_estados_map(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
+def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_data, *args) -> go.Figure:
     ctx = callback_context
 
     filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
@@ -621,6 +648,7 @@ def update_estados_map(tribunais:list[str], rubricas:list[str], decisoes:list[st
         lon = 'lng',
         size = 'Total',
         size_max = 35,
+        width = 500,
         hover_data = {
             DataSchemaTJ.TRIBUNAL_ORIGEM:True,
             'Total':True,

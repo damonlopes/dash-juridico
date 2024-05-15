@@ -7,6 +7,7 @@ app = Dash(
     use_pages = True,
     external_stylesheets = [dbc.themes.BOOTSTRAP],
     prevent_initial_callbacks = True,
+    meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1'}],
     # prevent_initial_callbacks='initial_duplicate',
 )
 server = app.server
@@ -24,7 +25,8 @@ sidebar = dbc.Nav(
         )
         for page in page_registry.values()
     ],
-    vertical = True,
+    fill = True,
+    vertical = False,
     pills = True,
     className = "bg-light",
 )
@@ -39,15 +41,24 @@ app.layout = dbc.Container([
             )
         ]),
         html.Hr(),
-        dbc.Row([
-                dbc.Col([
-                    sidebar
-                ], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
-                dbc.Col([
-                    page_container
-                ], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10),
-            ]
-        )
+        dbc.Row(
+            sidebar,
+            # xs=4, sm=4, md=2, lg=2, xl=2, xxl=2
+        ),
+        html.Hr(),
+        dbc.Row(
+            page_container,
+            # xs=8, sm=8, md=10, lg=10, xl=10, xxl=10
+        ),
+        # dbc.Row([
+        #         dbc.Col([
+        #             sidebar
+        #         ], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
+        #         dbc.Col([
+        #             page_container
+        #         ], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10),
+        #     ]
+        # )
     ],
     fluid = True
 )

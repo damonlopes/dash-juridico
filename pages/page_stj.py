@@ -30,11 +30,24 @@ register_page(
 
 layout = html.Div(
     children = [
-        dbc.Button(
-            "Mostrar/Ocultar Filtros",
-            id = ids_stj.OCULTAR_FILTROS_STJ_BUTTON,
-            n_clicks = 0
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dbc.Button(
+                            "Mostrar/Ocultar Filtros",
+                            id = ids_stj.OCULTAR_FILTROS_STJ_BUTTON,
+                            n_clicks = 0
+                        ),
+                    ],
+                    width = {
+                        "size":3,
+                    },
+                ),
+            ],
+            justify = "right"
         ),
+        html.Hr(),
         dbc.Collapse(
             dbc.Container([
                 dbc.Row([
@@ -124,6 +137,7 @@ layout = html.Div(
             id = ids_stj.OCULTAR_FILTROS_STJ_COLLAPSE,
             is_open = False
         ),
+        html.Hr(),
         dbc.Container([
             dbc.Row([
                 dbc.Col(
