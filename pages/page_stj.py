@@ -147,6 +147,7 @@ layout = html.Div(
                         ),
                         id = ids_stj.CONTAINER_RUBRICA_STJ,
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -154,7 +155,8 @@ layout = html.Div(
                             id = ids_stj.CAMARA_STJ_PIE_CHART,
                         ),
                         id = ids_stj.CONTAINER_CAMARA_STJ,
-                    )
+                    ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
             ]),
             dbc.Row([
@@ -172,16 +174,22 @@ layout = html.Div(
                     html.Div(
                         dcc.Graph(
                             id = ids_stj.ACAO_STJ_BAR_CHART,
+                            # style = {
+                            #     "overflowY":"scroll",
+                            #     "height":500
+                            # },
                         ),
-                        style = {
-                            'overflow-y':'auto',
-                            'maxHeight': '500px'
-                        },
+                        # style = {
+                        #     'overflow-y':'auto',
+                        #     'maxHeight': '500px'
+                        # },
                         id = ids_stj.CONTAINER_ACAO_STJ,
                     ),
                 ),
             ]),
-        ]),
+        ],
+        fluid = True,
+        ),
     ]
 )
 
@@ -261,8 +269,8 @@ def update_rubrica_chart(tribunais:list[str], rubricas:list[str], camaras:list[s
             labels = df_rubrica[DataSchemaSTJ.RUBRICA].tolist(),
             values = df_rubrica['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False,
         )
@@ -270,8 +278,8 @@ def update_rubrica_chart(tribunais:list[str], rubricas:list[str], camaras:list[s
         rubrica_donut = go.Pie(
             labels = df_rubrica[DataSchemaSTJ.RUBRICA].tolist(),
             values = df_rubrica['Total'],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
         )
 
@@ -332,8 +340,8 @@ def update_camara_chart(tribunais:list[str], rubricas:list[str], camaras:list[st
             labels = df_camara[DataSchemaSTJ.CAMARA_TURMA_SECAO].tolist(),
             values = df_camara['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False,
         )
@@ -341,8 +349,8 @@ def update_camara_chart(tribunais:list[str], rubricas:list[str], camaras:list[st
         camara_donut = go.Pie(
             labels = df_camara[DataSchemaSTJ.CAMARA_TURMA_SECAO].tolist(),
             values = df_camara['Total'],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
         )
 
@@ -405,11 +413,11 @@ def update_acao_chart(tribunais:list[str], rubricas:list[str], camaras:list[str]
             return "cornflowerblue"
         
     acao_bar = go.Bar(
-        # x = df_propositura['Tipo de ação'],
-        # y = df_propositura['Total'],
-        x = df_propositura['Total'],
-        y = df_propositura[DataSchemaSTJ.TIPO_ACAO],
-        orientation = 'h',
+        x = df_propositura[DataSchemaSTJ.TIPO_ACAO],
+        y = df_propositura['Total'],
+        # x = df_propositura['Total'],
+        # y = df_propositura[DataSchemaSTJ.TIPO_ACAO],
+        # orientation = 'h',
         marker = dict(
             color = list(
                 map(
@@ -424,11 +432,14 @@ def update_acao_chart(tribunais:list[str], rubricas:list[str], camaras:list[str]
         layout = {
             'title':'Tipo de Ação',
             'xaxis':{
-                'title':'Ano'
+                # 'title':'Total'
+                'title':'Tipo de Ação'
             },
             'yaxis':{
+                # 'title':'Tipo de Ação'
                 'title':'Total'
             },
+            # 'height':500,
         },
         # layout = {
         #     'height':5000
@@ -442,8 +453,7 @@ def update_acao_chart(tribunais:list[str], rubricas:list[str], camaras:list[str]
         height = 1000,
         # sliders = {
         #     'active' : 0
-        # }
-        
+        # } 
     )
 
     return fig

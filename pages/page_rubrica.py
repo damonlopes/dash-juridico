@@ -186,6 +186,7 @@ layout = html.Div(
                         ),
                         id = ids_rubrica.CONTAINER_DURACAO_RUBRICA,
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -194,6 +195,7 @@ layout = html.Div(
                         ),
                         id = ids_rubrica.CONTAINER_DECISOES_RUBRICA
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
             ]),
             dbc.Row([
@@ -204,6 +206,7 @@ layout = html.Div(
                         ),
                         id = ids_rubrica.CONTAINER_ATIVO_RUBRICA,
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -212,6 +215,7 @@ layout = html.Div(
                         ),
                         id = ids_rubrica.CONTAINER_PASSIVO_RUBRICA,
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
             ]),
             dbc.Row([
@@ -222,6 +226,7 @@ layout = html.Div(
                         ),
                         id = ids_rubrica.CONTAINER_PROPOSITURA_RUBRICA,
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -230,9 +235,12 @@ layout = html.Div(
                         ),
                         id = ids_rubrica.CONTAINER_JULGAMENTO_RUBRICA,
                     ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
             ]),
-        ]),
+        ],
+        fluid = True,
+        ),
     ],
 )
 
@@ -389,8 +397,8 @@ def update_decisoes_chart(tribunais:list[str], rubricas:list[str], decisoes:list
             labels = df_decisoes[DataSchemaTJ.ECAD].tolist(),
             values = df_decisoes['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False,
         )
@@ -398,8 +406,8 @@ def update_decisoes_chart(tribunais:list[str], rubricas:list[str], decisoes:list
         decisoes_donut = go.Pie(
             labels = df_decisoes[DataSchemaTJ.ECAD].tolist(),
             values = df_decisoes['Total'],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5
         )
 
@@ -470,8 +478,8 @@ def update_ativo_chart(tribunais:list[str], rubricas:list[str], decisoes:list[st
             labels = df_ativo[DataSchemaTJ.ATIVO].tolist(),
             values = df_ativo['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False,
         )
@@ -479,8 +487,8 @@ def update_ativo_chart(tribunais:list[str], rubricas:list[str], decisoes:list[st
         ativo_donut = go.Pie(
         labels = df_ativo[DataSchemaTJ.ATIVO].tolist(),
         values = df_ativo['Total'],
-        textinfo = 'percent',
-        textposition = 'outside',
+        textinfo = 'percent+value',
+        # textposition = 'outside',
         hole = 0.5
     )
 
@@ -545,8 +553,8 @@ def update_passivo_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
             labels = df_passivo[DataSchemaTJ.PASSIVO].tolist(),
             values = df_passivo['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False,
         )
@@ -554,8 +562,8 @@ def update_passivo_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         passivo_donut = go.Pie(
             labels = df_passivo[DataSchemaTJ.PASSIVO].tolist(),
             values = df_passivo['Total'],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5
         )
 

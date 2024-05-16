@@ -152,18 +152,22 @@ layout = html.Div(
         dbc.Container([
             dbc.Row([
                 dbc.Col(
+                    xs = 0, sm = 0, md = 0, lg = 0, xl = 1, xxl = 1,
+                ),
+                dbc.Col(
                     html.Div(
                         dcc.Graph(
                             id = ids_tjs.ESTADOS_BUBBLE_MAP,
+                            style = {
+                                "align-items":"center"
+                            }
                         ),
                         id = ids_tjs.CONTAINER_ESTADOS_TJ,
                     ),
-                    # xs = 6,
-                    # sm = 6,
-                    # md = 6,
-                    # lg = 6,
-                    # xl = 6,
-                    # xxl = 6,
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 4, xxl = 4,
+                ),
+                dbc.Col(
+                    xs = 0, sm = 0, md = 0, lg = 0, xl = 1, xxl = 1,
                 ),
                 dbc.Col(
                     html.Div(
@@ -172,13 +176,8 @@ layout = html.Div(
                         ),
                         id = ids_tjs.CONTAINER_DURACAO_TJ,
                     ),
-                    # xs = 6,
-                    # sm = 6,
-                    # md = 6,
-                    # lg = 6,
-                    # xl = 6,
-                    # xxl = 6,
-                )
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
+                ),
             ]),
             dbc.Row([
                 dbc.Col(
@@ -187,7 +186,8 @@ layout = html.Div(
                             id = ids_tjs.RUBRICA_TJS_PIE_CHART,
                         ),
                         id = ids_tjs.CONTAINER_RUBRICAS_TJ,
-                    )
+                    ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -195,8 +195,9 @@ layout = html.Div(
                             id = ids_tjs.DECISOES_TJS_PIE_CHART,
                         ),
                         id = ids_tjs.CONTAINER_DECISOES_TJ,
-                    )
-                )
+                    ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
+                ),
             ]),
             dbc.Row([
                 dbc.Col(
@@ -205,7 +206,8 @@ layout = html.Div(
                             id = ids_tjs.PROPOSITURA_TJS_BAR_CHART,
                         ),
                         id = ids_tjs.CONTAINER_PROPOSITURA_TJ,
-                    )
+                    ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
                 dbc.Col(
                     html.Div(
@@ -213,10 +215,13 @@ layout = html.Div(
                             id = ids_tjs.JULGAMENTO_TJS_BAR_CHART,
                         ),
                         id = ids_tjs.CONTAINER_JULGAMENTO_TJ,
-                    )
-                )
-            ])
-        ]),
+                    ),
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
+                ),
+            ]),
+        ],
+        fluid = True,
+        ),
     ]
 )
 
@@ -355,8 +360,8 @@ def update_rubrica_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
             labels = df_rubrica[DataSchemaTJ.RUBRICA].tolist(),
             values = df_rubrica['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False
         )
@@ -364,8 +369,8 @@ def update_rubrica_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         rubrica_donut = go.Pie(
             labels = df_rubrica[DataSchemaTJ.RUBRICA].tolist(),
             values = df_rubrica['Total'],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5
         )
 
@@ -430,8 +435,8 @@ def update_decisao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
             labels = df_decisoes[DataSchemaTJ.ECAD].tolist(),
             values = df_decisoes['Total'],
             pull = [0.2],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5,
             sort = False
         )
@@ -439,8 +444,8 @@ def update_decisao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         decisoes_donut = go.Pie(
             labels = df_decisoes[DataSchemaTJ.ECAD].tolist(),
             values = df_decisoes['Total'],
-            textinfo = 'percent',
-            textposition = 'outside',
+            textinfo = 'percent+value',
+            # textposition = 'outside',
             hole = 0.5
         )
 
@@ -644,10 +649,12 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
 
     fig = px.scatter_mapbox(
         df_mapa,
+        title = 'Distribuição de TJS',
         lat = 'lat',
         lon = 'lng',
         size = 'Total',
         size_max = 35,
+        color = 'Total',
         width = 500,
         hover_data = {
             DataSchemaTJ.TRIBUNAL_ORIGEM:True,
@@ -655,10 +662,14 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
             'lat':False,
             'lng':False
         },
-        zoom = 2,
-        mapbox_style = 'open-street-map'
+        zoom = 1.8,
+        mapbox_style = 'open-street-map',
     )
 
+    fig.update_layout(
+        title_x = 0.5,
+        title_y = 0.95,
+    )
     return fig
 
 def filter_database(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento: list[int]) -> pd.DataFrame:
