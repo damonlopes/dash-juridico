@@ -661,6 +661,10 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         size_max = 35,
         #color = 'Total',
         width = 500,
+        center = {
+            'lat': -14.261945692605,
+            'lon': -54.35861446795,
+        },
         hover_data = {
             DataSchemaTJ.TRIBUNAL_ORIGEM:True,
             'Total':True,
