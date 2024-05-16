@@ -431,6 +431,8 @@ def update_acao_chart(tribunais:list[str], rubricas:list[str], camaras:list[str]
         data = [acao_bar],
         layout = {
             'title':'Tipo de Ação',
+            'title_x':0.5,
+            'title_y':0.95,
             'xaxis':{
                 # 'title':'Total'
                 'title':'Tipo de Ação'
@@ -517,7 +519,9 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], camaras:lis
     fig = go.Figure(
         data = [julgamento_bar],
         layout = {
-            'title':'Contagem de Tribunal de Origem por Data Julgamento',
+            'title':'Tribunais x Ano de Julgamento',
+            'title_x':0.5,
+            'title_y':0.95,
             'xaxis':{
                 'title':'Ano'
             },

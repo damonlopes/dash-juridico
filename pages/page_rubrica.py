@@ -326,7 +326,7 @@ def update_duracao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         value = medio_duracao,
         number = {
             'font':{
-                'size':50,
+                'size':30,
             },
         },
         title = {
@@ -345,7 +345,7 @@ def update_duracao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
                 'tickmode':'array',
                 'tickvals':list(range(minimo_duracao, maximo_duracao + 1)),
                 'tickfont':{
-                    'size':15
+                    'size':10
                 },
             },
             'bar':{
@@ -656,7 +656,9 @@ def update_propositura_chart(tribunais:list[str], rubricas:list[str], decisoes:l
     fig = go.Figure(
         data = [propositura_bar],
         layout = {
-            'title':'Processos protocolados por ano',
+            'title':'Processos Protocolados por Ano',
+            'title_x':0.5,
+            'title_y':0.95,
             'xaxis':{
                 'title':'Total'
             },
@@ -732,6 +734,8 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], decisoes:li
         data = [julgamento_bar],
         layout = {
             'title':'Processos Julgados por Ano',
+            'title_x':0.5,
+            'title_y':0.95,
             'xaxis':{
                 'title':'Ano'
             },

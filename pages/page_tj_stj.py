@@ -66,7 +66,7 @@ layout = html.Div(
                         children = ["Selecionar Todos"],
                         id = ids_tjs.SELECT_ALL_TRIBUNAIS_TJS_BUTTON,
                         n_clicks = 0
-                    ), 
+                    ),
                 ]),
                 dbc.Row([
                     html.H4("Rubricas"),
@@ -81,7 +81,7 @@ layout = html.Div(
                         children = ["Selecionar Todos"],
                         id = ids_tjs.SELECT_ALL_RUBRICAS_TJS_BUTTON,
                         n_clicks = 0
-                    ), 
+                    ),
                 ]),
                 dbc.Row([
                     html.H4("Decisões"),
@@ -96,7 +96,7 @@ layout = html.Div(
                         children = ["Selecionar Todos"],
                         id = ids_tjs.SELECT_ALL_DECISOES_TJS_BUTTON,
                         n_clicks = 0
-                    ), 
+                    ),
                 ]),
                 dbc.Row([
                     html.H4("Ano Propositura"),
@@ -151,24 +151,25 @@ layout = html.Div(
         html.Hr(),
         dbc.Container([
             dbc.Row([
-                dbc.Col(
-                    xs = 0, sm = 0, md = 0, lg = 0, xl = 1, xxl = 1,
-                ),
+                #dbc.Col(
+                #    xs = 0, sm = 0, md = 0, lg = 0, xl = 1, xxl = 1,
+                #),
                 dbc.Col(
                     html.Div(
                         dcc.Graph(
                             id = ids_tjs.ESTADOS_BUBBLE_MAP,
                             style = {
-                                "align-items":"center"
+                                "align-items":"center",
+                                #"margin-left":"-20px",
                             }
                         ),
                         id = ids_tjs.CONTAINER_ESTADOS_TJ,
                     ),
-                    xs = 12, sm = 12, md = 12, lg = 6, xl = 4, xxl = 4,
+                    xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
-                dbc.Col(
-                    xs = 0, sm = 0, md = 0, lg = 0, xl = 1, xxl = 1,
-                ),
+                #dbc.Col(
+                #    xs = 1, sm = 1, md = 1, lg = 0, xl = 0, xxl = 0,
+                #),
                 dbc.Col(
                     html.Div(
                         dcc.Graph(
@@ -279,7 +280,7 @@ def update_duracao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
     ctx = callback_context
 
     filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
-    
+
     filtered_data = check_click_data(filtered_data, 'duracao', ctx)
 
     minimo_duracao = filtered_data[DataSchemaTJ.TEMPO_MEDIO].min()
@@ -291,7 +292,7 @@ def update_duracao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         value = medio_duracao,
         number = {
             'font':{
-                'size':50,
+                'size':30,
             },
         },
         title = {
@@ -310,7 +311,7 @@ def update_duracao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
                 'tickmode':'array',
                 'tickvals':list(range(minimo_duracao, maximo_duracao + 1)),
                 'tickfont':{
-                    'size':15
+                    'size':10
                 },
             },
             'bar':{
@@ -395,7 +396,7 @@ def update_rubrica_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
 
     fig.update_layout(
         margin = {"t":40, "b":0, "l":0, "r":0, "autoexpand": True},
-        
+
     )
     fig.update_traces(hovertemplate = "%{label}<br>%{value}<extra></extra>")
 
@@ -440,7 +441,7 @@ def update_decisao_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
             hole = 0.5,
             sort = False
         )
-    else:        
+    else:
         decisoes_donut = go.Pie(
             labels = df_decisoes[DataSchemaTJ.ECAD].tolist(),
             values = df_decisoes['Total'],
@@ -502,7 +503,7 @@ def update_propositura_chart(tribunais:list[str], rubricas:list[str], decisoes:l
     else:
         propositura = ''
         pass
-    
+
     minimo_ano, maximo_ano = df_propositura["Ano"].min(),df_propositura["Ano"].max()
 
     novo_index = pd.Index(np.arange(minimo_ano, maximo_ano + 1, 1), name = "Ano")
@@ -517,7 +518,7 @@ def update_propositura_chart(tribunais:list[str], rubricas:list[str], decisoes:l
             return "red"
         else:
             return "cornflowerblue"
-    
+
     propositura_bar = go.Bar(
         x = df_propositura["Ano"],
         y = df_propositura["Total"],
@@ -533,7 +534,9 @@ def update_propositura_chart(tribunais:list[str], rubricas:list[str], decisoes:l
     fig = go.Figure(
         data = [propositura_bar],
         layout = {
-            'title':'Quantidade de processos protocolados por Ano',
+            'title':'Processos Protocolados por Ano',
+            'title_x':0.5,
+            'title_y':0.95,
             'xaxis':{
                 'title':'Ano'
             },
@@ -568,7 +571,7 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], decisoes:li
     filtered_data['Ano'] = filtered_data[DataSchemaTJ.DATA_JULGAMENTO].dt.year
 
     df_julgamento = filtered_data[[DataSchemaTJ.TRIBUNAL_ORIGEM, 'Ano']].groupby(['Ano'])[DataSchemaTJ.TRIBUNAL_ORIGEM].count().reset_index(name = 'Total')
-    
+
     if click_data and ids_tjs.JULGAMENTO_TJS_BAR_CHART in ctx.triggered[0]["prop_id"] and ctx.triggered[0]["value"]:
         julgamento = ctx.triggered[0]["value"]["points"][0]["label"]
     else:
@@ -607,11 +610,13 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], decisoes:li
         data = [julgamento_bar],
         layout = {
             'title':'Processos Julgados por Ano',
+            'title_x':0.5,
+            'title_y':0.95,
             'xaxis':{
-                'title':'Total'
+                'title':'Total',
             },
             'yaxis':{
-                'title':'Ano'
+                'title':'Ano',
             },
         },
     )
@@ -636,7 +641,7 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
     filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
 
     filtered_data = check_click_data(filtered_data, 'estado', ctx)
-    
+
     df_tjs = filtered_data.groupby([DataSchemaTJ.TRIBUNAL_ORIGEM])[DataSchemaTJ.TRIBUNAL_ORIGEM].count().reset_index(name = 'Total')
 
     if click_data and ids_tjs.ESTADOS_BUBBLE_MAP in ctx.triggered[0]["prop_id"] and ctx.triggered[0]["value"]:
@@ -654,7 +659,7 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         lon = 'lng',
         size = 'Total',
         size_max = 35,
-        color = 'Total',
+        #color = 'Total',
         width = 500,
         hover_data = {
             DataSchemaTJ.TRIBUNAL_ORIGEM:True,
@@ -662,13 +667,17 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
             'lat':False,
             'lng':False
         },
-        zoom = 1.8,
+        zoom = 2,
         mapbox_style = 'open-street-map',
     )
 
     fig.update_layout(
         title_x = 0.5,
         title_y = 0.95,
+        margin = {
+            "autoexpand":False,
+            "l":20,
+        },
     )
     return fig
 
