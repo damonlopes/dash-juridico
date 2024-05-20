@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from dash import dcc, html, register_page, callback, Output, Input, State, callback_context
+from dash import dcc, html, register_page, callback, Output, Input, State, dash_table, callback_context
 from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, DataSchemaSTJ
 from .components.ids import ids_stj
@@ -58,7 +58,7 @@ layout = html.Div(
                         value = unique_tribunais,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_stj.SELECT_ALL_TRIBUNAIS_STJ_BUTTON,
@@ -73,7 +73,7 @@ layout = html.Div(
                         value = unique_rubricas,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_stj.SELECT_ALL_RUBRICAS_STJ_BUTTON,
@@ -88,7 +88,7 @@ layout = html.Div(
                         value = unique_camaras,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_stj.SELECT_ALL_CAMARAS_STJ_BUTTON,
@@ -103,7 +103,7 @@ layout = html.Div(
                         value = unique_acoes,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_stj.SELECT_ALL_ACOES_STJ_BUTTON,
@@ -186,6 +186,30 @@ layout = html.Div(
                         id = ids_stj.CONTAINER_ACAO_STJ,
                     ),
                 ),
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    html.Div(
+                        html.Label(
+                            "Tabela de Dados Gerais",
+                        ),
+                        style = {
+                            'textAlign':'center',
+                        }
+                    ),
+                    html.Div(
+                        id = ids_stj.CONTAINER_RESUMO_STJ,
+                    ),
+                    html.Div([
+                        dbc.Button(
+                            "Baixar tabela em .csv",
+                            id = ids_stj.DOWNLOAD_CSV_STJ_BUTTON,
+                        ),
+                        dcc.Download(
+                            id = ids_stj.DOWNLOAD_CSV_STJ,
+                        )
+                    ]),
+                ]),
             ]),
         ],
         fluid = True,
@@ -433,10 +457,10 @@ def update_acao_chart(tribunais:list[str], rubricas:list[str], camaras:list[str]
             'title':'Tipo de Ação',
             'title_x':0.5,
             'title_y':0.95,
-            'xaxis':{
-                # 'title':'Total'
-                'title':'Tipo de Ação'
-            },
+            # 'xaxis':{
+            #     # 'title':'Total'
+            #     'title':'Tipo de Ação'
+            # },
             'yaxis':{
                 # 'title':'Tipo de Ação'
                 'title':'Total'
@@ -532,6 +556,66 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], camaras:lis
     )
 
     return fig
+
+@callback(
+    Output(ids_stj.CONTAINER_RESUMO_STJ, "children"),
+    Input(ids_stj.TRIBUNAL_STJ_DROPDOWN, "value"),
+    Input(ids_stj.RUBRICA_STJ_DROPDOWN, "value"),
+    Input(ids_stj.CAMARA_STJ_DROPDOWN, "value"),
+    Input(ids_stj.ACAO_STJ_DROPDOWN, "value"),
+    Input(ids_stj.JULGAMENTO_STJ_SLIDER, "value"),
+)
+def update_resumo_table(tribunais:list[str], rubricas:list[str], camaras:list[str], acoes:list[str], ano_julgamento:list[int]) -> dash_table.DataTable:
+
+    filtered_data = filter_database(tribunais, rubricas, camaras, acoes, ano_julgamento)
+
+    data_stj = filtered_data.to_dict('records')
+    cols_stj = [{"name":i, "id":i} for i in filtered_data.columns]
+
+    return dash_table.DataTable(
+        data = data_stj,
+        columns = cols_stj,
+        fixed_rows = {
+            'headers':True
+        },
+        style_header = {
+            'backgroundColor': 'rgb(180, 180, 180)',
+            'border':'1px solid black',
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(220, 220, 220)',
+            }
+        ],
+        style_cell = {
+            'textAlign':'left',
+            'border':'1px solid black',
+            'minWidth': '200px',
+        },
+        style_table = {
+            'height':500,
+            'overflowY':'auto',
+            'textAlign':'left',
+        }
+    )
+
+@callback(
+    Output(ids_stj.DOWNLOAD_CSV_STJ, "data"),
+    Input(ids_stj.TRIBUNAL_STJ_DROPDOWN, "value"),
+    Input(ids_stj.RUBRICA_STJ_DROPDOWN, "value"),
+    Input(ids_stj.CAMARA_STJ_DROPDOWN, "value"),
+    Input(ids_stj.ACAO_STJ_DROPDOWN, "value"),
+    Input(ids_stj.JULGAMENTO_STJ_SLIDER, "value"),
+    Input(ids_stj.DOWNLOAD_CSV_STJ_BUTTON, "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_table(tribunais:list[str], rubricas:list[str], camaras:list[str], acoes:list[str], ano_julgamento:list[int], click_button):
+    ctx = callback_context
+    
+    if ids_stj.DOWNLOAD_CSV_STJ_BUTTON in ctx.triggered[0]["prop_id"]:
+        filtered_data = filter_database(tribunais, rubricas, camaras, acoes, ano_julgamento)
+        return dcc.send_data_frame(filtered_data.to_csv, "TabelaDados_Dash_STJ.csv", encoding="utf-8", index = False)
 
 def filter_database(tribunais:list[str], rubricas:list[str], camaras:list[str], acoes:list[str], ano_julgamento:list[int]) -> pd.DataFrame:
 

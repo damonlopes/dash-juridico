@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
-from dash import dcc, html, register_page, callback, Output, Input, State, callback_context
+from dash import dcc, html, register_page, callback, Output, Input, State, dash_table, callback_context
 from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, DataSchemaTJ
 from .components.ids import ids_rubrica
@@ -59,7 +59,7 @@ layout = html.Div(
                             value = unique_tribunais,
                             multi = True,
                         ),
-                        html.Button(
+                        dbc.Button(
                             className = "dropdown-button",
                             children = ["Selecionar Todos"],
                             id = ids_rubrica.SELECT_ALL_TRIBUNAIS_RUBRICA_BUTTON,
@@ -74,7 +74,7 @@ layout = html.Div(
                         value = unique_rubricas,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_rubrica.SELECT_ALL_RUBRICAS_BUTTON,
@@ -89,7 +89,7 @@ layout = html.Div(
                         value = unique_decisoes,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_rubrica.SELECT_ALL_DECISOES_BUTTON,
@@ -104,7 +104,7 @@ layout = html.Div(
                         value = unique_ativos,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_rubrica.SELECT_ALL_ATIVOS_BUTTON,
@@ -119,7 +119,7 @@ layout = html.Div(
                         value = unique_passivos,
                         multi = True,
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_rubrica.SELECT_ALL_PASSIVOS_BUTTON,
@@ -237,6 +237,30 @@ layout = html.Div(
                     ),
                     xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    html.Div(
+                        html.Label(
+                            "Tabela de Dados Gerais",
+                        ),
+                        style = {
+                            'textAlign':'center',
+                        }
+                    ),
+                    html.Div(
+                        id = ids_rubrica.CONTAINER_RESUMO_RUBRICA,
+                    ),
+                    html.Div([
+                        dbc.Button(
+                            "Baixar tabela em .csv",
+                            id = ids_rubrica.DOWNLOAD_CSV_RUBRICA_BUTTON,
+                        ),
+                        dcc.Download(
+                            id = ids_rubrica.DOWNLOAD_CSV_RUBRICA,
+                        )
+                    ]),
+                ]),
             ]),
         ],
         fluid = True,
@@ -746,6 +770,70 @@ def update_julgamento_chart(tribunais:list[str], rubricas:list[str], decisoes:li
     )
 
     return fig
+
+@callback(
+    Output(ids_rubrica.CONTAINER_RESUMO_RUBRICA, "children"),
+    Input(ids_rubrica.TRIBUNAL_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.DECISAO_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.ATIVO_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.PASSIVO_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.PROPOSITURA_RUBRICA_SLIDER, "value"),
+    Input(ids_rubrica.JULGAMENTO_RUBRICA_SLIDER, "value"),
+)
+def update_resumo_table(tribunais:list[str], rubricas:list[str], decisoes:list[str], ativos:list[str], passivos:list[str], ano_propositura:list[int], ano_julgamento:list[int]) -> dash_table.DataTable:
+
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ativos, passivos, ano_propositura, ano_julgamento)
+
+    data_rubrica = filtered_data.to_dict('records')
+    cols_rubrica = [{"name":i, "id":i} for i in filtered_data.columns]
+
+    return dash_table.DataTable(
+        data = data_rubrica,
+        columns = cols_rubrica,
+        fixed_rows = {
+            'headers':True
+        },
+        style_header = {
+            'backgroundColor': 'rgb(180, 180, 180)',
+            'border':'1px solid black',
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(220, 220, 220)',
+            }
+        ],
+        style_cell = {
+            'textAlign':'left',
+            'border':'1px solid black',
+            'minWidth': '200px',
+        },
+        style_table = {
+            'height':500,
+            'overflowY':'auto',
+            'textAlign':'left',
+        }
+    )
+
+@callback(
+    Output(ids_rubrica.DOWNLOAD_CSV_RUBRICA, "data"),
+    Input(ids_rubrica.TRIBUNAL_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.DECISAO_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.ATIVO_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.PASSIVO_RUBRICA_DROPDOWN, "value"),
+    Input(ids_rubrica.PROPOSITURA_RUBRICA_SLIDER, "value"),
+    Input(ids_rubrica.JULGAMENTO_RUBRICA_SLIDER, "value"),
+    Input(ids_rubrica.DOWNLOAD_CSV_RUBRICA_BUTTON, "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_table(tribunais:list[str], rubricas:list[str], decisoes:list[str], ativos:list[str], passivos:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_button):
+    ctx = callback_context
+    
+    if ids_rubrica.DOWNLOAD_CSV_RUBRICA_BUTTON in ctx.triggered[0]["prop_id"]:
+        filtered_data = filter_database(tribunais, rubricas, decisoes, ativos, passivos, ano_propositura, ano_julgamento)
+        return dcc.send_data_frame(filtered_data.to_csv, "TabelaDados_Dash_Rubrica.csv", encoding="utf-8", index = False)
    
 def filter_database(tribunais:list[str], rubricas: list[str], decisoes:list[str], ativos:list[str], passivos:list[str], ano_propositura:list[int], ano_julgamento:list[int]) -> pd.DataFrame:
     new_df = data.copy()

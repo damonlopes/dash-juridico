@@ -10,6 +10,8 @@ class ids_tjs:
     SELECT_ALL_DECISOES_TJS_BUTTON = "select-all-decisoes-tjs-button"
     PROPOSITURA_TJS_SLIDER = "propositura-tjs-slider"
     JULGAMENTO_TJS_SLIDER = "julgamento-tjs-slider"
+    DOWNLOAD_CSV_TJS_BUTTON = "download-csv-tjs-button"
+    DOWNLOAD_CSV_TJS = "download-csv-tjs"
 
     CONTAINER_ESTADOS_TJ = "container-estados-tj"
     CONTAINER_RUBRICAS_TJ = "container-rubricas-tj"
@@ -17,6 +19,7 @@ class ids_tjs:
     CONTAINER_JULGAMENTO_TJ = "container-julgamento-tj"
     CONTAINER_PROPOSITURA_TJ = "container-propositura-tj"
     CONTAINER_DURACAO_TJ = "container-duracao-tj"
+    CONTAINER_RESUMO_TJ = "container-resumo-tj"
 
     ESTADOS_BUBBLE_MAP = "estados-bubble-map"
     RUBRICA_TJS_PIE_CHART = "rubrica-tjs-pie-chart"
@@ -24,6 +27,7 @@ class ids_tjs:
     JULGAMENTO_TJS_BAR_CHART = "julgamento-tjs-bar-chart"
     PROPOSITURA_TJS_BAR_CHART = "propositura-tjs-bar-chart"
     DURACAO_TJS_GAUGE_CHART = "duracao-tjs-gauge-chart"
+    RESUMO_TJS_TABLE = "resumo-tjs-table"
 
 class ids_stj:
     OCULTAR_FILTROS_STJ_COLLAPSE = "ocultar-filtros-stj-collapse"
@@ -38,16 +42,21 @@ class ids_stj:
     ACAO_STJ_DROPDOWN = "acao-stj-dropdown"
     SELECT_ALL_ACOES_STJ_BUTTON = "select-all-acoes-stj-button"
     JULGAMENTO_STJ_SLIDER = "julgamento_stj_slider"
+    DOWNLOAD_CSV_STJ_BUTTON = "download-csv-stj-button"
+    DOWNLOAD_CSV_STJ = "download-csv-stj"
+
 
     CONTAINER_RUBRICA_STJ = "container-rubrica-stj"
     CONTAINER_CAMARA_STJ = "container-camara-stj"
     CONTAINER_ACAO_STJ = "container-acao-stj"
     CONTAINER_JULGAMENTO_STJ = "container-julgamento-stj"
+    CONTAINER_RESUMO_STJ = "container-resumo-stj"
 
     RUBRICA_STJ_PIE_CHART = "rubrica-stj-pie-chart"
     CAMARA_STJ_PIE_CHART = "camara-stj-pie-chart"
     JULGAMENTO_STJ_BAR_CHART = "julgamento-stj-bar-chart"
     ACAO_STJ_BAR_CHART = "acao-stj-bar-chart"
+    RESUMO_STJ_TABLE = "resumo-stj-table"
 
 class ids_rubrica:
     OCULTAR_FILTROS_RUBRICA_COLLAPSE = "ocultar-filtros-rubrica-collapse"
@@ -65,6 +74,8 @@ class ids_rubrica:
     SELECT_ALL_PASSIVOS_BUTTON = "select-all-passivos-button"
     PROPOSITURA_RUBRICA_SLIDER = "propositura-rubrica-slider"
     JULGAMENTO_RUBRICA_SLIDER = "julgamento-rubrica-slider"
+    DOWNLOAD_CSV_RUBRICA_BUTTON = "download-csv-rubrica-button"
+    DOWNLOAD_CSV_RUBRICA = "download-csv-rubrica"
 
     CONTAINER_DURACAO_RUBRICA = "container-duracao-rubrica"
     CONTAINER_DECISOES_RUBRICA = "container-decisoes-rubrica"
@@ -72,6 +83,7 @@ class ids_rubrica:
     CONTAINER_PASSIVO_RUBRICA = "container-passivo-rubrica"
     CONTAINER_PROPOSITURA_RUBRICA = "container-propositura-rubrica"
     CONTAINER_JULGAMENTO_RUBRICA = "container-julgamento-rubrica"
+    CONTAINER_RESUMO_RUBRICA = "container-resumo-rubrica"
 
     DURACAO_RUBRICA_GAUGE_CHART = "duracao-rubrica-gauge-chart"
     DECISOES_RUBRICA_PIE_CHART = "decisoes-rubrica-pie-chart"
@@ -79,3 +91,4 @@ class ids_rubrica:
     PASSIVO_RUBRICA_PIE_CHART = "passivo-rubrica-pie-chart"
     PROPOSITURA_RUBRICA_BAR_CHART = "propositura-rubrica-bar-chart"
     JULGAMENTO_RUBRICA_BAR_CHART = "julgamento-rubrica-bar-chart"
+    RESUMO_RUBRICA_TABLE = "resumo-rubrica-table"

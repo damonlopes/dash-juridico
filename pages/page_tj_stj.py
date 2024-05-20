@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from dash import dcc, html, register_page, callback, Output, Input, State, callback_context
+from dash import dcc, html, register_page, callback, Output, Input, State, dash_table, callback_context
 from dash._callback_context import CallbackContext
 from .data.loader import load_dashboard_data, load_cities_data, DataSchemaTJ
 from .components.ids import ids_tjs
@@ -61,7 +61,7 @@ layout = html.Div(
                         value = unique_tribunais,
                         multi = True
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_tjs.SELECT_ALL_TRIBUNAIS_TJS_BUTTON,
@@ -76,7 +76,7 @@ layout = html.Div(
                         value = unique_rubricas,
                         multi = True
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_tjs.SELECT_ALL_RUBRICAS_TJS_BUTTON,
@@ -91,7 +91,7 @@ layout = html.Div(
                         value = unique_decisoes,
                         multi = True
                     ),
-                    html.Button(
+                    dbc.Button(
                         className = "dropdown-button",
                         children = ["Selecionar Todos"],
                         id = ids_tjs.SELECT_ALL_DECISOES_TJS_BUTTON,
@@ -219,6 +219,30 @@ layout = html.Div(
                     ),
                     xs = 12, sm = 12, md = 12, lg = 6, xl = 6, xxl = 6,
                 ),
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    html.Div(
+                        html.Label(
+                            "Tabela de Dados Gerais",
+                        ),
+                        style = {
+                            "textAlign":"center",
+                        },
+                    ),
+                    html.Div(
+                        id = ids_tjs.CONTAINER_RESUMO_TJ,
+                    ),
+                    html.Div([
+                        dbc.Button(
+                            "Baixar tabela em .csv",
+                            id = ids_tjs.DOWNLOAD_CSV_TJS_BUTTON,
+                        ),
+                        dcc.Download(
+                            id = ids_tjs.DOWNLOAD_CSV_TJS,
+                        )
+                    ]),
+                ]),
             ]),
         ],
         fluid = True,
@@ -684,6 +708,67 @@ def update_estados_chart(tribunais:list[str], rubricas:list[str], decisoes:list[
         },
     )
     return fig
+
+@callback(
+    Output(ids_tjs.CONTAINER_RESUMO_TJ, "children"),
+    Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
+)
+def update_resumo_table(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int]) -> dash_table.DataTable:
+
+    filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
+
+    data_tjs = filtered_data.to_dict('records')
+    cols_tjs = [{"name":i, "id":i} for i in filtered_data.columns]
+
+    return dash_table.DataTable(
+        data = data_tjs,
+        columns = cols_tjs,
+        fixed_rows = {
+            'headers':True
+        },
+        style_header = {
+            'backgroundColor': 'rgb(180, 180, 180)',
+            'border':'1px solid black',
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(220, 220, 220)',
+            }
+        ],
+        style_cell = {
+            'textAlign':'left',
+            'border':'1px solid black',
+            'minWidth': '200px',
+        },
+        style_table = {
+            'height':500,
+            'overflowY':'auto',
+            'textAlign':'left',
+        }
+    )
+
+@callback(
+    Output(ids_tjs.DOWNLOAD_CSV_TJS, "data"),
+    Input(ids_tjs.TRIBUNAL_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.RUBRICA_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.DECISAO_TJS_DROPDOWN, "value"),
+    Input(ids_tjs.PROPOSITURA_TJS_SLIDER, "value"),
+    Input(ids_tjs.JULGAMENTO_TJS_SLIDER, "value"),
+    Input(ids_tjs.DOWNLOAD_CSV_TJS_BUTTON, "n_clicks"),
+    prevent_initial_call = True,
+)
+def download_table(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento:list[int], click_button):
+
+    ctx = callback_context
+
+    if ids_tjs.DOWNLOAD_CSV_TJS_BUTTON in ctx.triggered[0]["prop_id"]:
+        filtered_data = filter_database(tribunais, rubricas, decisoes, ano_propositura, ano_julgamento)
+        return dcc.send_data_frame(filtered_data.to_csv, "TabelaDados_Dash_TJS.csv", encoding = "utf-8", index = False)
 
 def filter_database(tribunais:list[str], rubricas:list[str], decisoes:list[str], ano_propositura:list[int], ano_julgamento: list[int]) -> pd.DataFrame:
 
